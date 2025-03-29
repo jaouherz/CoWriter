@@ -5,6 +5,8 @@ const cors = require("cors");
 const userRoutes = require("./routes/userRoutes");
 const authRoutes = require('./routes/authRoutes');
 const roomRoutes = require("./routes/roomRoutes");
+const bookRoutes = require("./routes/bookRoutes");
+const chapterRoutes = require("./routes/chapterRoutes");
 const app = express();
 
 // Middleware
@@ -29,4 +31,6 @@ app.get("/", (req, res) => {
 app.use("/users", userRoutes);
 app.use('/auth', authRoutes);
 app.use("/rooms", roomRoutes);
+app.use("/books", bookRoutes);
+app.use("/chapters", chapterRoutes);
 module.exports = app;

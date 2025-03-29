@@ -1,8 +1,6 @@
 const Room = require("../models/Room");
-const User = require("../models/User");
 
 class RoomService {
-    // Generate unique 6-character room code
     static async generateUniqueCode() {
         let code;
         let isUnique = false;
@@ -16,7 +14,6 @@ class RoomService {
         return code;
     }
 
-    // Create a new room
     static async createRoom(name, createdBy, visibility = 'public') {
         const code = await this.generateUniqueCode();
 
@@ -25,7 +22,7 @@ class RoomService {
             code,
             createdBy,
             users: [createdBy],
-            visibility,  // Added visibility here
+            visibility,
             pendingMembers: [],
         });
 
@@ -49,9 +46,7 @@ class RoomService {
         const room = await Room.findOne({ code });
         if (!room) throw new Error("Invalid room code!");
 
-        // Public room: anyone can join
         if (room.visibility === "public") {
-            // Check if user is already in the room
             if (room.users.includes(userId)) throw new Error("You are already in this room!");
 
             room.users.push(userId);
@@ -59,21 +54,18 @@ class RoomService {
             return room;
         }
 
-        // Private room: user needs approval from the creator
         if (room.visibility === "private") {
-            // Check if the user is already in the pending list
             if (room.pendingMembers.includes(userId)) {
                 throw new Error("You are already waiting for approval!");
             }
 
             room.pendingMembers.push(userId);
             await room.save();
-            return room; // Join request is sent
+            return room;
         }
 
         return null;
     }
-    // Get all rooms
     static async getAllRooms() {
         return await Room.find().populate("createdBy", "name").populate("users", "name");
     }
