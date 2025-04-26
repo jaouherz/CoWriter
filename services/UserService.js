@@ -5,7 +5,6 @@ class UserService {
         try {
             const salt = await bcrypt.genSalt(10);
             userData.password = await bcrypt.hash(userData.password, salt);
-
             const user = new UserModel(userData);
             return await user.save();
         } catch (error) {

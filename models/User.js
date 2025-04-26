@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema({
     password: { type: String, required: true },
     role: { type: String, enum: ["Admin", "User"], default: "User" },
     token: { type: String },
-    isActivated: { type: Boolean, default: false },
+    isActivated: { type: Boolean, default: true },
     teamLeader: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null }
 },
 { timestamps: true }

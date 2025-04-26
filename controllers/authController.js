@@ -1,7 +1,12 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const UserService = require("../services/UserService");
-const UserController = require("./userController");
+const Token = require("../models/Token");
+const User = require("../models/User");
+
+const {OAuth2Client} = require("google-auth-library");
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 // const { sendEmail } = require("../services/mailService");
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -54,8 +59,6 @@ class AuthController {
         }
     }
 
-
-
     static async login(req, res) {
         try {
             const { email, password } = req.body;
@@ -97,6 +100,48 @@ class AuthController {
             res.status(500).json({ message: "Internal Server Error" });
         }
     }
+
+    static async googleAuth(req,res){
+        try {
+            const { credential } = req.body;
+            const ticket = await googleClient.verifyIdToken({
+                idToken: credential,
+                audience: process.env.GOOGLE_CLIENT_ID
+            });
+            const payload = ticket.getPayload();
+            const { email, name, picture } = payload;
+            let user = await User.findOne({ email });
+            let token;
+            if (!user) {
+                token = jwt.sign({ email }, JWT_SECRET, { expiresIn: "1h" });
+                user = await UserService.createUser({
+                    name,
+                    email,
+                    password:'google-auth',
+                    role: 'User' ,
+                    isGoogleAuth: true,
+                    token,
+                    isActivated: false,
+                    teamLeader: null,
+                });
+
+            }
+            else
+            {
+                token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: "1h" });
+            }
+            res.json({
+                message: 'Google authentication successful',
+                token,
+                user: { id: user._id, name: user.name, email: user.email, role: user.role }
+            });
+        } catch (e) {
+            console.error('Google auth error:', e);
+            res.status(500).send({ message: 'Google authentication failed' });
+        }
+
+    }
+
 
 }
 
