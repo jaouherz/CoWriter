@@ -1,11 +1,17 @@
 const RoomService = require("../services/roomService");
+const path = require('path');
 
 class RoomController {
     static async createRoom(req, res) {
         try {
-            const { name, createdBy, visibility } = req.body;
-            const room = await RoomService.createRoom(name, createdBy, visibility);
-            res.status(201).json({ message: "Room created sucdcessfully!", room });
+            const { name, createdBy, visibility,description } = req.body;
+            const coverImage = req.file;
+            if (!coverImage) {
+                return res.status(400).json({ error: 'Cover image is required' });
+            }
+
+            const room = await RoomService.createRoom(name, createdBy, visibility,{path: coverImage.path, contentType: coverImage.mimetype},description);
+            res.status(201).json(room );
         } catch (error) {
             res.status(400).json({ error: error.message });
         }
@@ -25,7 +31,20 @@ class RoomController {
     static async getAllRooms(req, res) {
         try {
             const rooms = await RoomService.getAllRooms();
-            res.status(200).json(rooms);
+            const roomsWithImageUrls = rooms.map(room => {
+                const roomData = room.toObject();
+                if (roomData.coverImage?.path) {
+                    roomData.coverImage = {
+                        ...roomData.coverImage,
+                        path: `http://${req.get('host')}/uploads/${path.basename(roomData.coverImage.path)}`
+                    };
+                } else {
+                    roomData.coverImage = null;
+                }
+
+                return roomData;
+            });
+            res.status(200).json(roomsWithImageUrls);
         } catch (error) {
             res.status(500).json({ error: error.message });
         }

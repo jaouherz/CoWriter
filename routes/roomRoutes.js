@@ -1,12 +1,13 @@
 const express = require("express");
 const RoomController = require("../controllers/roomController");
+const upload = require('../middlewares/uploadMiddleware');
 
 const router = express.Router();
-router.post("/create", RoomController.createRoom);
+router.post("/create",upload.single('coverImage'), RoomController.createRoom);
 
 router.post("/join", RoomController.joinRoom);
 
-router.get("/", RoomController.getAllRooms);
+router.get("/all", RoomController.getAllRooms);
 
 router.get("/:roomId", RoomController.getRoomById);
 

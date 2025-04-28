@@ -7,6 +7,11 @@ const RoomSchema = new mongoose.Schema({
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     pendingMembers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    description:String,
+    coverImage: {
+        path: String,
+        contentType: String,
+    },
     visibility: { type: String, enum: ["public", "private"], default: "public" },
 }, { timestamps: true });
 

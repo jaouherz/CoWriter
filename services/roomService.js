@@ -1,4 +1,5 @@
 const Room = require("../models/Room");
+const fs = require('fs');
 
 class RoomService {
     static async generateUniqueCode() {
@@ -14,7 +15,7 @@ class RoomService {
         return code;
     }
 
-    static async createRoom(name, createdBy, visibility = 'public') {
+    static async createRoom(name, createdBy, visibility = 'public',coverImage,description) {
         const code = await this.generateUniqueCode();
 
         const newRoom = new Room({
@@ -22,6 +23,8 @@ class RoomService {
             code,
             createdBy,
             users: [createdBy],
+            coverImage,
+            description,
             visibility,
             pendingMembers: [],
         });
