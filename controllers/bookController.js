@@ -3,8 +3,8 @@ const BookService = require("../services/bookService");
 class BookController {
     static async createBook(req, res) {
         try {
-            const { title, type, roomId, createdBy, firstChapterContent } = req.body;
-            const book = await BookService.createBook(title, type, roomId, createdBy, firstChapterContent);
+            const { title, type, roomId, createdBy, firstChapterContent,description } = req.body;
+            const book = await BookService.createBook(title, type, roomId, createdBy,description, firstChapterContent);
             res.status(201).json({ message: "Book created successfully!", book });
         } catch (error) {
             res.status(400).json({ error: error.message });

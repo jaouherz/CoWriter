@@ -4,7 +4,7 @@ const Room = require("../models/Room");
 const ChapterVersion  = require("../models/ChapterVersion");
 
 class BookService {
-    static async createBook(title, type, roomId, createdBy, firstChapterContent) {
+    static async createBook(title, type, roomId, createdBy,description, firstChapterContent) {
         const room = await Room.findById(roomId);
         if (!room) throw new Error("Room not found!");
 
@@ -17,7 +17,7 @@ class BookService {
             throw new Error("You cannot create a new book until all previous books are marked as completed.");
         }
 
-        const book = new Book({ title, type, room: roomId, createdBy, chapters: [] });
+        const book = new Book({ title, type,description, room: roomId, createdBy, chapters: [] });
         await book.save();
 
         const firstChapter = new Chapter({ book: book._id, chapterNumber: 1 });

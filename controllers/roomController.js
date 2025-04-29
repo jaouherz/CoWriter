@@ -56,7 +56,9 @@ const roomsWithImageUrls = (rooms, req)  => {
             let room = await RoomService.getRoomById(roomId);
             if (!room) return res.status(404).json({ error: "Room not found!" });
             const coverImage=room.coverImage;
-            room.coverImage.path=`http://${req.get('host')}/uploads/${path.basename(coverImage.path)}`
+            if (room.coverImage?.path){
+                room.coverImage.path=`http://${req.get('host')}/uploads/${path.basename(coverImage.path)}`;
+            }
             res.status(200).json(room);
         } catch (error) {
             res.status(500).json({ error: error.message });
