@@ -76,6 +76,13 @@ class RoomService {
     static async getRoomById(roomId) {
         return await Room.findById(roomId).populate("createdBy", "name").populate("users", "name");
     }
+    static async getMyRoom(userId){
+        return Room.find({
+            $or: [
+                {creaatedBy: userId},
+                {users: userId}
+            ]}).populate("createdBy", "name").populate("users", "name");
+    }
     static async canVote(roomCode, userId) {
         const room = await Room.findOne({ code: roomCode });
 

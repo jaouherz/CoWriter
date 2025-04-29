@@ -11,6 +11,8 @@ router.get("/all", RoomController.getAllRooms);
 
 router.get("/:roomId", RoomController.getRoomById);
 
+router.get("/myrooms/:id",RoomController.getMyrooms)
+
 router.post("/accept-join-request", RoomController.acceptJoinRequest);
 
 router.post("/ban-user", RoomController.banUserFromRoom);

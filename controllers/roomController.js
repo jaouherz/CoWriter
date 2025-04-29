@@ -1,7 +1,19 @@
 const RoomService = require("../services/roomService");
 const path = require('path');
-
-class RoomController {
+const roomsWithImageUrls = (rooms, req)  => {
+    return rooms.map(room => {
+        const roomData = room.toObject();
+        if (roomData.coverImage?.path) {
+            roomData.coverImage = {
+                ...roomData.coverImage,
+                path: `http://${req.get('host')}/uploads/${path.basename(roomData.coverImage.path)}`
+            };
+        } else {
+            roomData.coverImage = null;
+        }
+        return roomData;
+    });
+};class RoomController {
     static async createRoom(req, res) {
         try {
             const { name, createdBy, visibility,description } = req.body;
@@ -31,20 +43,8 @@ class RoomController {
     static async getAllRooms(req, res) {
         try {
             const rooms = await RoomService.getAllRooms();
-            const roomsWithImageUrls = rooms.map(room => {
-                const roomData = room.toObject();
-                if (roomData.coverImage?.path) {
-                    roomData.coverImage = {
-                        ...roomData.coverImage,
-                        path: `http://${req.get('host')}/uploads/${path.basename(roomData.coverImage.path)}`
-                    };
-                } else {
-                    roomData.coverImage = null;
-                }
-
-                return roomData;
-            });
-            res.status(200).json(roomsWithImageUrls);
+            const transformedRooms = roomsWithImageUrls(rooms, req);
+            res.status(200).json(transformedRooms);
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
@@ -57,6 +57,15 @@ class RoomController {
             if (!room) return res.status(404).json({ error: "Room not found!" });
 
             res.status(200).json(room);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
+    static async getMyrooms(req,res){
+        try {
+            const rooms = await RoomService.getMyRoom(req.params.id);
+            const transformedRooms = roomsWithImageUrls(rooms, req);
+            res.status(200).json(transformedRooms);
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
