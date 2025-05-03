@@ -1,15 +1,18 @@
 const BookService = require("../services/bookService");
+const path = require('path');
 
 class BookController {
     static async createBook(req, res) {
         try {
             const { title, type, roomId, createdBy, firstChapterContent,description } = req.body;
-            const book = await BookService.createBook(title, type, roomId, createdBy,description, firstChapterContent);
+            const coverImage = req.file;
+            const book = await BookService.createBook(title, type, roomId, createdBy, firstChapterContent,description,{path: coverImage.path, contentType: coverImage.mimetype});
             res.status(201).json({ message: "Book created successfully!", book });
         } catch (error) {
             res.status(400).json({ error: error.message });
         }
-    }static async markBookAsCompleted(req, res) {
+    }
+    static async markBookAsCompleted(req, res) {
         try {
             const { bookId, userId } = req.body;
             const book = await BookService.markBookAsCompleted(bookId, userId);
@@ -23,6 +26,10 @@ class BookController {
         try {
             const { roomId } = req.params;
             const books = await BookService.getBooksByRoom(roomId);
+            const coverImage=books.coverImage;
+            if (books.coverImage?.path){
+                books.coverImage.path=`http://${req.get('host')}/uploads/${path.basename(coverImage.path)}`;
+            }
             res.status(200).json(books);
         } catch (error) {
             res.status(400).json({ error: error.message });

@@ -1,5 +1,4 @@
 const Room = require("../models/Room");
-const fs = require('fs');
 
 class RoomService {
     static async generateUniqueCode() {

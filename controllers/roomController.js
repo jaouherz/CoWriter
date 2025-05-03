@@ -13,7 +13,9 @@ const roomsWithImageUrls = (rooms, req)  => {
         }
         return roomData;
     });
-};class RoomController {
+};
+
+class RoomController {
     static async createRoom(req, res) {
         try {
             const { name, createdBy, visibility,description } = req.body;
