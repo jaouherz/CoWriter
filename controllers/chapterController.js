@@ -1,6 +1,19 @@
 const ChapterService = require("../services/chapterService");
 
 class ChapterController {
+    static async addChapter(req,res){
+        try {
+            const{bookId,title,createdBy}=req.body;
+            console.log({bookId,title,createdBy})
+            if (!bookId || !createdBy) {
+                return res.status(400).json({ error: "Missing required fields" });
+            }
+            const chapter=await ChapterService.createChapter(bookId,title,createdBy);
+            res.send(chapter)
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
     static async submitChapterVersion(req, res) {
         try {
             const { chapterId, content, createdBy } = req.body;

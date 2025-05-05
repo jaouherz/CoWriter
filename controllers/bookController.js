@@ -1,5 +1,19 @@
 const BookService = require("../services/bookService");
 const path = require('path');
+const booksWithImageUrls = (books, req)  => {
+    return books.map(book => {
+        const bookData = book.toObject();
+        if (bookData.coverImage?.path) {
+            bookData.coverImage = {
+                ...bookData.coverImage,
+                path: `http://${req.get('host')}/uploads/${path.basename(bookData.coverImage.path)}`
+            };
+        } else {
+            bookData.coverImage = null;
+        }
+        return bookData;
+    });
+};
 
 class BookController {
     static async createBook(req, res) {
@@ -55,6 +69,16 @@ class BookController {
             res.status(400).json({ error: error.message });
         }
     }
+    static async getAllBooks(req,res) {
+        try {
+            const books=await  BookService.getAllBooks();
+            const transformedBooks = booksWithImageUrls(books, req);
+            res.send(transformedBooks);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
+
 }
 
 module.exports = BookController;

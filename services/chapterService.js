@@ -1,14 +1,46 @@
 const Chapter = require("../models/Chapter");
 const Book = require("../models/Book");
+const User = require("../models/User");
 const Vote = require("../models/Vote");
 const ChapterVersion = require("../models/ChapterVersion");
+const bookService=require("../services/bookService")
+const userService=require("../services/UserService")
+
 class ChapterService {
     static async startBook(bookId) {
         const firstChapter = new Chapter({ book: bookId, chapterNumber: 1 });
         await firstChapter.save();
         return { message: "Book started! Chapter 1 is open for submissions." };
     }
+    static async createChapter(bookId, title, createdBy) {
+        console.log({bookId,title,createdBy})
+        const lastChapter = await Chapter.findOne({ book: bookId })
+            .sort({ chapterNumber: -1 })
+            .select('chapterNumber')
+            .lean();
 
+        const nextChapterNumber = lastChapter ? lastChapter.chapterNumber + 1 : 1;
+        const book= await Book.findById(bookId);
+        const user= await User.findById(createdBy);
+        console.log(user)
+        console.log(book)
+        if(!user)  throw new Error("user not found!");
+        if(!book) throw new Error("book not found!");
+        const chapter = new Chapter({
+            title: title ,
+            book: book,
+            chapterNumber: nextChapterNumber,
+            createdBy: user
+        });
+        const savedChapter = await chapter.save();
+        await Book.findByIdAndUpdate(
+            bookId,
+            { $push: { chapters: savedChapter._id } },
+            { new: true }
+        );
+
+        return savedChapter;
+    }
     static async submitChapterVersion(chapterId, content, createdBy) {
         const chapter = await Chapter.findById(chapterId);
         if (!chapter) throw new Error("Chapter not found!");
@@ -71,11 +103,12 @@ class ChapterService {
     }
 
     static async getChaptersByBook(bookId) {
-        return await Chapter.find({ book: bookId, confirmed: true }).populate("createdBy", "name");
+        // return await Chapter.find({ book: bookId, confirmed: true }).populate("createdBy", "name");
+        return await Chapter.find({ book: bookId}).populate("createdBy", "name");
     }
 
     static async getChapterById(chapterId) {
-        return await Chapter.findById(chapterId).populate("createdBy", "name");
+        return await Chapter.findById(chapterId).populate("createdBy", "name").populate("book",'title').populate("confirmedVersion","content");
     }
 
     static async getChapterVersions(chapterId) {

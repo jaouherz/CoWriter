@@ -81,6 +81,9 @@ class BookService {
         await book.save();
         return book;
     }
+    static async getAllBooks(){
+        return await Book.find().populate("chapters").populate("createdBy", "name");
+    }
 }
 
 module.exports = BookService;
