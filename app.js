@@ -1,18 +1,20 @@
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
+const axios = require("axios");
 const cors = require("cors");
 const userRoutes = require("./routes/userRoutes");
 const authRoutes = require('./routes/authRoutes');
 const roomRoutes = require("./routes/roomRoutes");
 const bookRoutes = require("./routes/bookRoutes");
+const textRoutes = require("./routes/text.routes");
 const chapterRoutes = require("./routes/chapterRoutes");
-const app = express();
 
+const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
-
+app.use("/api",textRoutes);
 // MongoDB Connection
 mongoose
     .connect(process.env.MONGO_URI, {
