@@ -12,8 +12,7 @@ class ChapterService {
         await firstChapter.save();
         return { message: "Book started! Chapter 1 is open for submissions." };
     }
-    static async createChapter(bookId, title, createdBy) {
-        console.log({bookId,title,createdBy})
+    static async createChapter(bookId, title, createdBy,chapterDeadline) {
         const lastChapter = await Chapter.findOne({ book: bookId })
             .sort({ chapterNumber: -1 })
             .select('chapterNumber')
@@ -22,15 +21,15 @@ class ChapterService {
         const nextChapterNumber = lastChapter ? lastChapter.chapterNumber + 1 : 1;
         const book= await Book.findById(bookId);
         const user= await User.findById(createdBy);
-        console.log(user)
-        console.log(book)
+
         if(!user)  throw new Error("user not found!");
         if(!book) throw new Error("book not found!");
         const chapter = new Chapter({
             title: title ,
             book: book,
             chapterNumber: nextChapterNumber,
-            createdBy: user
+            createdBy: user,
+            chapterDeadline:chapterDeadline
         });
         const savedChapter = await chapter.save();
         await Book.findByIdAndUpdate(
@@ -49,8 +48,11 @@ class ChapterService {
         await newVersion.save();
         return newVersion;
     }
-
+    static async getVotesByUser(userId){
+        return await Vote.find({user:userId})
+    }
     static async voteForVersion(versionId, userId) {
+        console.log("version : "+versionId)
         const version = await ChapterVersion.findById(versionId);
         if (!version) throw new Error("Chapter version not found!");
 
@@ -71,6 +73,7 @@ class ChapterService {
         if (!chapter) throw new Error("Chapter not found!");
 
         const now = new Date();
+
         if (chapter.voteDeadline && now < chapter.voteDeadline) {
             throw new Error("Voting is still ongoing for this chapter.");
         }
@@ -91,13 +94,6 @@ class ChapterService {
             await book.save();
         }
 
-        if (!book.lastChapterDeclared) {
-            const nextChapter = new Chapter({ book: chapter.book, chapterNumber: chapter.chapterNumber + 1 });
-            await nextChapter.save();
-
-            book.chapters.push(nextChapter._id);
-            await book.save();
-        }
 
         return { message: `Chapter ${chapter.chapterNumber} confirmed! Next chapter created.`, bestVersion };
     }

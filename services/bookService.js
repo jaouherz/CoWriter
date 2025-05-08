@@ -2,47 +2,36 @@ const Book = require("../models/Book");
 const Chapter = require("../models/Chapter");
 const Room = require("../models/Room");
 const RoomService=require("./roomService")
+const ChapterService=require("./chapterService")
+const UserService=require("./UserService")
 const ChapterVersion  = require("../models/ChapterVersion");
 
 class BookService {
     static async createBook(title, type, roomId, createdBy, firstChapterContent,description,coverImage) {
         const room = await RoomService.getRoomById(roomId);
         if (!room) throw new Error("Room not found!");
+        const user=await UserService.getUserById(createdBy)
+        if (!user) throw new Error("User not found!");
 
-        // if (room.createdBy.id !== createdBy.id) {
-        //     throw new Error("Only the room creator can create books.");
-        // }
 
         const existingUncompletedBook = await Book.findOne({ room: roomId, completed: false });
         if (existingUncompletedBook) {
             throw new Error("You cannot create a new book until all previous books are marked as completed.");
         }
 
-        const book = new Book({ title, type,description, room: roomId, createdBy, chapters: [],coverImage });
+        const book = new Book({ title, type, description, room, createdBy: user._id, chapters: [], coverImage });
         await book.save();
 
-        const firstChapter = new Chapter({ book: book._id, chapterNumber: 1 });
-        await firstChapter.save();
-
-        const firstChapterVersion = new ChapterVersion({
-            chapter: firstChapter._id,
-            content: firstChapterContent,
-            createdBy: createdBy,
-            votes: 0
-        });
-        await firstChapterVersion.save();
+        const firstChapter=await ChapterService.createChapter(book._id, "test test", user._id);
+        const firstChapterVersion=await ChapterService.submitChapterVersion(firstChapter._id,firstChapterContent,user._id)
 
         firstChapter.confirmedVersion = firstChapterVersion._id;
         await firstChapter.save();
 
-        book.chapters.push(firstChapter._id);
-        await book.save();
 
-        const secondChapter = new Chapter({ book: book._id, chapterNumber: 2 });
-        await secondChapter.save();
 
-        book.chapters.push(secondChapter._id);
-        await book.save();
+        await ChapterService.createChapter(book._id, "Chapter 2", user._id);
+
 
         return book;
     }

@@ -8,7 +8,7 @@ router.post("/addChapter", ChapterController.addChapter);
 router.post("/vote", ChapterController.voteForVersion);
 router.post("/confirm", ChapterController.confirmChapter);
 router.get("/book/:bookId", ChapterController.getChaptersByBook);
-
+router.get("/voteByUser/:userId",ChapterController.getVotesByUser)
 router.get("/:chapterId", ChapterController.getChapterById);
 
 router.get("/:chapterId/versions", ChapterController.getChapterVersions);
