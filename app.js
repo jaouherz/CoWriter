@@ -14,7 +14,6 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use("/api",textRoutes);
 // MongoDB Connection
 mongoose
     .connect(process.env.MONGO_URI, {
@@ -36,4 +35,6 @@ app.use("/rooms", roomRoutes);
 app.use("/books", bookRoutes);
 app.use("/chapters", chapterRoutes);
 app.use('/uploads', express.static('uploads'));
+app.use("/api",textRoutes);
+
 module.exports = app;
