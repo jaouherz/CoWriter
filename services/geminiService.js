@@ -1,6 +1,6 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-let genAI; // Declare genAI at the module level
+let genAI;
 
 class ReformulateService {
     static async initialize() {
@@ -14,7 +14,6 @@ class ReformulateService {
         }
     }
     static formatTextForJSON(text) {
-        // Convert the text to be JSON safe by escaping newlines and special characters
         return text.replace(/\n/g, '\\n').replace(/\r/g, '\\r');
     }
 
