@@ -40,11 +40,8 @@ class BookController {
         try {
             const { roomId } = req.params;
             const books = await BookService.getBooksByRoom(roomId);
-            const coverImage=books.coverImage;
-            if (books.coverImage?.path){
-                books.coverImage.path=`http://${req.get('host')}/uploads/${path.basename(coverImage.path)}`;
-            }
-            res.status(200).json(books);
+            const transformedBooks = booksWithImageUrls(books, req);
+            res.status(200).json(transformedBooks);
         } catch (error) {
             res.status(400).json({ error: error.message });
         }
@@ -53,7 +50,10 @@ class BookController {
     static async getBookById(req, res) {
         try {
             const { bookId } = req.params;
-            const book = await BookService.getBookById(bookId);
+            let book = await BookService.getBookById(bookId);
+            if (book.coverImage?.path) {
+                book.coverImage.path = `http://${req.get('host')}/uploads/${path.basename(book.coverImage.path)}`;
+            }
             res.status(200).json(book);
         } catch (error) {
             res.status(400).json({ error: error.message });
