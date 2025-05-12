@@ -21,8 +21,9 @@ class BookService {
 
         const book = new Book({ title, type, description, room, createdBy: user._id, chapters: [], coverImage });
         await book.save();
-
-        const firstChapter=await ChapterService.createChapter(book._id, "test test", user._id);
+        const deadline = new Date();
+        deadline.setDate(deadline.getDate() + 2);
+        const firstChapter=await ChapterService.createChapter(book._id, "test test", user._id,deadline);
         const firstChapterVersion=await ChapterService.submitChapterVersion(firstChapter._id,firstChapterContent,user._id)
 
         firstChapter.confirmedVersion = firstChapterVersion._id;
