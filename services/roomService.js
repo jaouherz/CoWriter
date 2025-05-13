@@ -107,6 +107,14 @@ class RoomService {
         if (!room) throw new Error("Room not found!");
         return room.pendingMembers;
     }
+    static async getRoomsUserCount() {
+        const rooms = await Room.find({}, 'name users'); // Only get name and users fields
+        return rooms.map(room => ({
+            name: room.name,
+            userCount: room.users.length
+        }));
+    }
+
 }
 
 module.exports = RoomService;

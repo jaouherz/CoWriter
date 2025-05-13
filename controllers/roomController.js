@@ -102,6 +102,14 @@ class RoomController {
             res.status(400).json({ error: error.message });
         }
     }
+    static async getRoomsUserCount(req, res) {
+        try {
+            const data = await RoomService.getRoomsUserCount();
+            res.status(200).json(data);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
 }
 
 module.exports = RoomController;

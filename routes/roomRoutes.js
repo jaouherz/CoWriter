@@ -18,5 +18,6 @@ router.post("/accept-join-request", RoomController.acceptJoinRequest);
 router.post("/ban-user", RoomController.banUserFromRoom);
 
 router.get("/:roomCode/pending-users", RoomController.getPendingUsers);
+router.get('/stats/room-user-count', RoomController.getRoomsUserCount);
 
 module.exports = router;
